@@ -53,7 +53,10 @@ jobs:
           git clone https://github.com/KDAB/KDDockWidgets
           mkdir -p KDDockWidgets/build
           cd KDDockWidgets/build
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/KDDockWidgets
+          cmake .. -GNinja \
+                   -DCMAKE_BUILD_TYPE=Debug \
+                   -DCMAKE_INSTALL_PREFIX=~/KDDockWidgets \
+                   -DCMAKE_PREFIX_PATH=~/KDDockWidgets
           ninja
           sudo ninja install
       - name: Generate build files
