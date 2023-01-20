@@ -27,6 +27,7 @@ jobs:
                            gettext \
                            qtbase5-private-dev \
                            qt6-base-private-dev \
+                           libqt5svg5-dev \
                            libqt6svg6-dev \
                            libqt5x11extras5-dev \
                            libkf5threadweaver-dev \
