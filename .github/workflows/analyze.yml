@@ -1,0 +1,59 @@
+name: SonarCloud
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          submodules: recursive
+      - name: Install sonar-scanner and build-wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v1
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo add-apt-repository ppa:kubuntu-ppa/backports
+          sudo apt install ninja-build \
+                           extra-cmake-modules \
+                           gettext \
+                           libkf5threadweaver-dev \
+                           libkf5i18n-dev \
+                           libkf5configwidgets-dev \
+                           libkf5coreaddons-dev \
+                           libkf5itemviews-dev \
+                           libkf5itemmodels-dev \
+                           libkf5kio-dev \
+                           libkf5parts-dev \
+                           libkf5solid-dev \
+                           libkf5windowsystem-dev \
+                           libkf5notifications-dev \
+                           libkf5iconthemes-dev \
+                           libelf-dev \
+                           libdw-dev \
+                           libqt5svg5-dev
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: 6.2.*
+      - name: Generate build files
+        run: |
+          mkdir build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
+      - name: Run build-wrapper
+        run: |
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} ninja -j $(nproc) -C build
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
