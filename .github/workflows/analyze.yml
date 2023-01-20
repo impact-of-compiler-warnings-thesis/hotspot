@@ -44,6 +44,13 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           version: 6.2.*
+      - name: Build and install KDockWidgets
+        run: |
+          git clone https://github.com/KDAB/KDDockWidgets
+          mkdir -p KDDockWidgets/build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
+          ninja
+          sudo ninja install
       - name: Generate build files
         run: |
           mkdir build && cd build
